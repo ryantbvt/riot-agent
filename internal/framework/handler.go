@@ -1,21 +1,33 @@
 package framework
 
 import (
-	"log"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/ryantbvt/riot-agent/internal/riot"
+	"github.com/ryantbvt/riot-agent/internal/riot/lol"
 )
 
 const (
 	Prefix = "!"
 )
 
-func MessageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
+type Handler struct {
+	Riot      *riot.Client
+	LolClient *lol.LolClient
+}
+
+func NewHandler(riotClient *riot.Client, LolClient *lol.LolClient) *Handler {
+	return &Handler{
+		Riot:      riotClient,
+		LolClient: LolClient,
+	}
+}
+
+func (h *Handler) MessageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// Validate message is not itself
 	if m.Author.Bot {
-		log.Println("ignore")
 		return
 	}
 
@@ -35,12 +47,14 @@ func MessageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	cmdName := parts[0]
 	args := parts[1:]
 
-	cmd, exists := Commands[cmdName]
+	// Validate the command exist
+	commands := GetCommands()
+	cmd, exists := commands[cmdName]
 	if !exists {
 		s.ChannelMessageSend(m.ChannelID, "Unknown command")
 		return
 	}
 
-	cmd.Execute(s, m, args)
+	cmd.Execute(h, s, m, args)
 
 }
