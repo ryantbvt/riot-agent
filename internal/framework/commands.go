@@ -37,7 +37,7 @@ func summonerReviewCommand(h *Handler, s *discordgo.Session, m *discordgo.Messag
 		log.Println("Invalid region")
 	}
 
-	result, err := lol.GetSummonerReview(h.Riot, h.LolClient, riotID, region)
+	result, err := lol.GetSummonerReview(h.RiotClient, riotID, region)
 	if err != nil {
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error: %v", err))
 		return

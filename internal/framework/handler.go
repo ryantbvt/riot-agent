@@ -4,8 +4,7 @@ import (
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/ryantbvt/riot-agent/internal/riot"
-	"github.com/ryantbvt/riot-agent/internal/riot/lol"
+	"github.com/junioryono/Riot-API-Golang/apiclient"
 )
 
 const (
@@ -13,14 +12,12 @@ const (
 )
 
 type Handler struct {
-	Riot      *riot.Client
-	LolClient *lol.LolClient
+	RiotClient apiclient.Client
 }
 
-func NewHandler(riotClient *riot.Client, LolClient *lol.LolClient) *Handler {
+func NewHandler(riotClient apiclient.Client) *Handler {
 	return &Handler{
-		Riot:      riotClient,
-		LolClient: LolClient,
+		RiotClient: riotClient,
 	}
 }
 
