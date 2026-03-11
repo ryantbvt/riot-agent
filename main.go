@@ -8,12 +8,16 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 
-	framework "github.com/ryantbvt/riot-agent/internal/framework"
+	"github.com/junioryono/Riot-API-Golang/apiclient"
+	"github.com/ryantbvt/riot-agent/internal/framework"
 )
 
 func main() {
 	// Load configs
 	conf := framework.LoadEnv()
+
+	// Initialize Riot API client (handles rate limiting via Riot-API-Golang)
+	riotClient := apiclient.New(conf.RiotToken)
 
 	// Initialize discord bot
 	discordServer, err := discordgo.New("Bot " + conf.DiscToken)
@@ -22,7 +26,8 @@ func main() {
 	}
 
 	// Add handlers
-	discordServer.AddHandler(framework.MessageHandler)
+	handler := framework.NewHandler(riotClient)
+	discordServer.AddHandler(handler.MessageHandler)
 
 	// for scale, but not needed
 	// discordServer.Identify.Intents = discordgo.IntentGuildMessages

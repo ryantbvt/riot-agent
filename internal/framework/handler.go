@@ -1,21 +1,30 @@
 package framework
 
 import (
-	"log"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/junioryono/Riot-API-Golang/apiclient"
 )
 
 const (
 	Prefix = "!"
 )
 
-func MessageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
+type Handler struct {
+	RiotClient apiclient.Client
+}
+
+func NewHandler(riotClient apiclient.Client) *Handler {
+	return &Handler{
+		RiotClient: riotClient,
+	}
+}
+
+func (h *Handler) MessageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// Validate message is not itself
 	if m.Author.Bot {
-		log.Println("ignore")
 		return
 	}
 
@@ -35,12 +44,14 @@ func MessageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	cmdName := parts[0]
 	args := parts[1:]
 
-	cmd, exists := Commands[cmdName]
+	// Validate the command exist
+	commands := GetCommands()
+	cmd, exists := commands[cmdName]
 	if !exists {
 		s.ChannelMessageSend(m.ChannelID, "Unknown command")
 		return
 	}
 
-	cmd.Execute(s, m, args)
+	cmd.Execute(h, s, m, args)
 
 }
